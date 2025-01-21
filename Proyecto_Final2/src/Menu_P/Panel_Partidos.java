@@ -9,48 +9,70 @@ import java.util.ArrayList;
 import java.util.List;
 
 class Partido {
-    private String equipoLocal;
-    private String equipoVisitante;
+    private String nombreLocal;
+    private String nombreVisitante;
     private String marcador;
     private int amarillas;
     private int rojas;
 
-    public Partido(String equipoLocal, String equipoVisitante, String marcador, int amarillas, int rojas) {
-        this.equipoLocal = equipoLocal;
-        this.equipoVisitante = equipoVisitante;
+    public Partido(String nombreLocal, String nombreVisitante, String marcador, int amarillas, int rojas) {
+        this.nombreLocal = nombreLocal;
+        this.nombreVisitante = nombreVisitante;
         this.marcador = marcador;
         this.amarillas = amarillas;
         this.rojas = rojas;
     }
 
-    public String getEquipoLocal() {
-        return equipoLocal;
+    // Getters y Setters
+    public String getNombreLocal() {
+        return nombreLocal;
     }
 
-    public String getEquipoVisitante() {
-        return equipoVisitante;
+    public void setNombreLocal(String nombreLocal) {
+        this.nombreLocal = nombreLocal;
+    }
+
+    public String getNombreVisitante() {
+        return nombreVisitante;
+    }
+
+    public void setNombreVisitante(String nombreVisitante) {
+        this.nombreVisitante = nombreVisitante;
     }
 
     public String getMarcador() {
         return marcador;
     }
 
+    public void setMarcador(String marcador) {
+        this.marcador = marcador;
+    }
+
     public int getAmarillas() {
         return amarillas;
+    }
+
+    public void setAmarillas(int amarillas) {
+        this.amarillas = amarillas;
     }
 
     public int getRojas() {
         return rojas;
     }
+
+    public void setRojas(int rojas) {
+        this.rojas = rojas;
+    }
 }
+
 
 public class Panel_Partidos extends JPanel implements ActionListener {
     private List<Partido> listaPartidos;
-    private DefaultTableModel modeloTabla5;
     private JComboBox<String> comboLocal, comboVisitante;
     private JTextField textoMarcadorLocal, textoMarcadorVisitante;
     private JTextField textoAmarillas, textoRojas;
-    private JButton botonRegistrarPartido,botonActualizarEquipos;;
+    private JButton botonRegistrarPartido,botonActualizarEquipos;
+    private DefaultTableModel modeloTabla5;
     private JTable tablaPartidos;
     private JScrollPane scrollPane;
 
@@ -107,11 +129,11 @@ public class Panel_Partidos extends JPanel implements ActionListener {
         add(botonRegistrarPartido);
         botonRegistrarPartido.addActionListener(this);
 
+        // Botón para actualizar equipos
         botonActualizarEquipos = new JButton("Actualizar Equipos");
         botonActualizarEquipos.setBounds(630, 20, 150, 30);
         add(botonActualizarEquipos);
         botonActualizarEquipos.addActionListener(this);
-
 
         modeloTabla5 = new DefaultTableModel();
         modeloTabla5.addColumn("Local");
@@ -131,17 +153,16 @@ public class Panel_Partidos extends JPanel implements ActionListener {
         actualizarComboEquipos();
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == botonRegistrarPartido) {
             String nombreLocal = (String) comboLocal.getSelectedItem();
             String nombreVisitante = (String) comboVisitante.getSelectedItem();
             String marcadorLocal = textoMarcadorLocal.getText().trim();
             String marcadorVisitante = textoMarcadorVisitante.getText().trim();
-            String amarillasTexto = textoAmarillas.getText().trim();
-            String rojasTexto = textoRojas.getText().trim();
 
-            if (nombreLocal == null || nombreVisitante == null || marcadorLocal.isEmpty() || marcadorVisitante.isEmpty() || amarillasTexto.isEmpty() || rojasTexto.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Complete todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
+            if (nombreLocal == null || nombreVisitante == null || marcadorLocal.isEmpty() || marcadorVisitante.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Complete todos los campos del partido.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -151,13 +172,17 @@ public class Panel_Partidos extends JPanel implements ActionListener {
             }
 
             try {
+                MenuFrame menuFrame = (MenuFrame) SwingUtilities.getWindowAncestor(this);
+                DialogoSeleccionJugadores dialogo = new DialogoSeleccionJugadores((JFrame) menuFrame, menuFrame, this, nombreLocal, nombreVisitante);
+                dialogo.setVisible(true);
+
+                // Procesar el registro del partido
                 int marcadorL = Integer.parseInt(marcadorLocal);
                 int marcadorV = Integer.parseInt(marcadorVisitante);
-                int amarillas = Integer.parseInt(amarillasTexto);
-                int rojas = Integer.parseInt(rojasTexto);
-
                 String marcador = marcadorL + " - " + marcadorV;
 
+                int amarillas = Integer.parseInt(textoAmarillas.getText().trim());
+                int rojas = Integer.parseInt(textoRojas.getText().trim());
                 listaPartidos.add(new Partido(nombreLocal, nombreVisitante, marcador, amarillas, rojas));
                 modeloTabla5.addRow(new Object[]{nombreLocal, nombreVisitante, marcador, amarillas, rojas});
                 guardarPartidos();
@@ -167,41 +192,93 @@ public class Panel_Partidos extends JPanel implements ActionListener {
                 textoAmarillas.setText("");
                 textoRojas.setText("");
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Ingrese números válidos para los marcadores y tarjetas.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Ingrese números válidos para los marcadores.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        }else if (e.getSource() == botonActualizarEquipos) {
+        } else if (e.getSource() == botonActualizarEquipos) {
             actualizarComboEquipos(); // Actualizar los ComboBox de equipos
         }
     }
 
-    private void guardarPartidos() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("tabla_partidos.txt"))) {
-            for (int i = 0; i < modeloTabla5.getRowCount(); i++) {
-                writer.write(
-                        modeloTabla5.getValueAt(i, 0) + "," +
-                        modeloTabla5.getValueAt(i, 1) + "," +
-                        modeloTabla5.getValueAt(i, 2) + "," +
-                        modeloTabla5.getValueAt(i, 3) + "," +
-                        modeloTabla5.getValueAt(i, 4));
+
+
+    // Método para actualizar tarjetas de un jugador
+    public static void actualizarTarjetasJugador(String nombreJugador, int amarillas, int rojas) {
+        List<Jugador> jugadores = cargarJugadoresDesdeArchivo(); // Cargar jugadores desde archivo
+        // Buscar y actualizar el jugador específico
+        for (Jugador jugador : jugadores) {
+            if (jugador.getNombre().equals(nombreJugador)) {
+                jugador.setTarjetasAmarillas(jugador.getTarjetasAmarillas() + amarillas);
+                jugador.setTarjetasRojas(jugador.getTarjetasRojas() + rojas);
+                break;
+            }
+        }
+        guardarJugadoresEnArchivo(jugadores); // Guardar los jugadores actualizados
+    }
+
+
+    // Método para cargar jugadores desde el archivo
+    public static List<Jugador> cargarJugadoresDesdeArchivo() {
+        List<Jugador> jugadores = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader("tabla_jugadores.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] datos = line.split(",");
+                if (datos.length == 9) {
+                    jugadores.add(new Jugador(datos[0], Integer.parseInt(datos[1]), datos[2], datos[3],
+                            Integer.parseInt(datos[4]), Integer.parseInt(datos[5]), Integer.parseInt(datos[6]),
+                            Integer.parseInt(datos[7]), datos[8]));
+                }
+            }
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Error al cargar los jugadores: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return jugadores;
+    }
+
+    // Método para guardar jugadores en archivo
+    public static void guardarJugadoresEnArchivo(List<Jugador> jugadores) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("tabla_jugadores.txt"))) {
+            for (Jugador jugador : jugadores) {
+                writer.write(jugador.getNombre() + "," + jugador.getEdad() + "," + jugador.getCedula() + "," +
+                        jugador.getPosicion() + "," + jugador.getGoles() + "," + jugador.getTarjetasAmarillas() + "," +
+                        jugador.getTarjetasRojas() + "," + jugador.getMinutosJugados() + "," + jugador.getFechaContrato());
                 writer.newLine();
             }
-            JOptionPane.showMessageDialog(this, "Partidos guardados correctamente.");
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Error al guardar los jugadores: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+
+
+
+    private void guardarPartidos() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("tabla_partidos.txt"))) {
+            for (Partido partido : listaPartidos) {
+                writer.write(partido.getNombreLocal() + "," + partido.getNombreVisitante() + "," +
+                        partido.getMarcador() + "," + partido.getAmarillas() + "," + partido.getRojas());
+                writer.newLine();
+            }
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, "Error al guardar los partidos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
+
     private void cargarPartidos() {
+        listaPartidos.clear();
         try (BufferedReader reader = new BufferedReader(new FileReader("tabla_partidos.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] datos = line.split(",");
-                if (datos.length == 5) {
-                    modeloTabla5.addRow(datos);
+                if (datos.length == 5) { // Asegúrate de que el archivo tenga 5 columnas
+                    Partido partido = new Partido(datos[0], datos[1], datos[2],
+                            Integer.parseInt(datos[3]), Integer.parseInt(datos[4]));
+                    listaPartidos.add(partido); modeloTabla5.addRow(new Object[]{datos[0], datos[1], datos[2], datos[3], datos[4]});
                 }
             }
         } catch (IOException ex) {
-            // Ignorar si el archivo no existe
+            JOptionPane.showMessageDialog(this, "Error al cargar los partidos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -209,16 +286,16 @@ public class Panel_Partidos extends JPanel implements ActionListener {
         List<String> nombresEquipos = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader("tabla_equipos.txt"))) {
             String line;
-        while ((line = reader.readLine()) != null) {
-            String[] data = line.split(",");
-            if (data.length > 0) {
-                nombresEquipos.add(data[0]); // Solo agregar el nombre del equipo
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data.length > 0) {
+                    nombresEquipos.add(data[0]); // Solo agregar el nombre del equipo
+                }
             }
+        } catch(IOException e) {
+            e.printStackTrace();
         }
-    } catch(IOException e) {
-        e.printStackTrace();
-    }
-    return nombresEquipos;
+        return nombresEquipos;
     }
 
     // Método para actualizar el ComboBox con los nombres de los equipos
@@ -234,17 +311,18 @@ public class Panel_Partidos extends JPanel implements ActionListener {
             comboVisitante.setBounds(350, 20, 120, 20);
             add(comboVisitante);
         }
-       comboLocal.removeAllItems();
-       comboVisitante.removeAllItems();
+        comboLocal.removeAllItems();
+        comboVisitante.removeAllItems();
         // Cargar datos desde el archivo de nombres de equipos
         List<String> nombresEquipos = cargarNombresEquipos();
-            for (String nombre : nombresEquipos) {
-                comboLocal.addItem(nombre.trim());
-            }
-            for (String nombre : nombresEquipos) {
-                comboVisitante.addItem(nombre.trim());
-            }
+        for (String nombre : nombresEquipos) {
+            comboLocal.addItem(nombre.trim());
+        }
+        for (String nombre : nombresEquipos) {
+            comboVisitante.addItem(nombre.trim());
+        }
     }
+
     public void agregarEquipoEnComboBox(String nombre) {
         System.out.println("Agregando equipo al ComboBox: " + nombre);
 
@@ -252,26 +330,6 @@ public class Panel_Partidos extends JPanel implements ActionListener {
         comboLocal.addItem(nombre); // Agregar el nombre del equipo al ComboBox
         comboVisitante.addItem(nombre);
     }
-
-    private void cargarDatosDesdeArchivo() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("tabla_partidos.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] data = line.split(",");
-                modeloTabla5.addRow(data);
-
-                // Agregar presidentes del archivo al ComboBox externo
-                if (data[1].equals("Presidente")) {
-                    comboLocal.addItem(data[0]);
-                }
-            }
-            //JOptionPane.showMessageDialog(this, "Datos cargados exitosamente.");
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, "Error al cargar los datos: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
     public DefaultTableModel getModeloTabla() {
         return modeloTabla5;
     }

@@ -12,6 +12,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 class Jugador {
     private String nombre;
@@ -23,18 +25,18 @@ class Jugador {
     private int tarjetasRojas;
     private int minutosJugados;
     private String fechaContrato;
-//
-public Jugador(String nombre, int edad, String cedula, String posicion, int goles, int tarjetasAmarillas, int tarjetasRojas, int minutosJugados, String fechaContrato) {
-    this.nombre = nombre;
-    this.edad = edad;
-    this.cedula = cedula;
-    this.posicion = posicion;
-    this.goles = goles;
-    this.tarjetasAmarillas = tarjetasAmarillas;
-    this.tarjetasRojas = tarjetasRojas;
-    this.minutosJugados = minutosJugados;
-    this.fechaContrato = fechaContrato;
-}
+    //
+    public Jugador(String nombre, int edad, String cedula, String posicion, int goles, int tarjetasAmarillas, int tarjetasRojas, int minutosJugados, String fechaContrato) {
+        this.nombre = nombre;
+        this.edad = edad;
+        this.cedula = cedula;
+        this.posicion = posicion;
+        this.goles = goles;
+        this.tarjetasAmarillas = tarjetasAmarillas;
+        this.tarjetasRojas = tarjetasRojas;
+        this.minutosJugados = minutosJugados;
+        this.fechaContrato = fechaContrato;
+    }
 
     // Getters y Setters
     public String getNombre() {
@@ -156,13 +158,13 @@ public class Panel_Jugador extends JPanel implements ActionListener {
         add(txtEdad);
 
         JLabel lbPosicion = new JLabel("Posición");
-        lbPosicion.setBounds(470, 60, 120, 20);
+        lbPosicion.setBounds(470, 50, 120, 20);
         add(lbPosicion);
 
         cmbPosicion = new JComboBox<>(new String[]{
                 "Delantero", "Mediocampista", "Defensor", "Portero"
         });
-        cmbPosicion.setBounds(540, 60, 150, 20);
+        cmbPosicion.setBounds(540, 50, 150, 20);
         add(cmbPosicion);
 
         JLabel lbCedula = new JLabel("Cédula");
@@ -235,11 +237,11 @@ public class Panel_Jugador extends JPanel implements ActionListener {
 
         // ComboBox para nombres de equipos
         JLabel lbEquipos = new JLabel("Equipos");
-        lbEquipos.setBounds(470, 100, 120, 20);
+        lbEquipos.setBounds(650, 60, 120, 20);
         add(lbEquipos);
 
         comboEquipos = new JComboBox<>();
-        comboEquipos.setBounds(530, 100, 150, 20);
+        comboEquipos.setBounds(650, 80, 150, 20);
         add(comboEquipos);
 
         // Configurar modelo de la tabla
@@ -341,6 +343,42 @@ public class Panel_Jugador extends JPanel implements ActionListener {
         }
     }
 
+    public static void actualizarTarjetasJugador(String nombreJugador, int amarillas, int rojas) {
+        EquipoJugadorMap equipoJugadorMap = cargarJugadoresDesdeArchivo(); // Cargar jugadores desde archivo
+
+        // Buscar y actualizar el jugador específico
+        for (Map.Entry<String, List<Jugador>> entry : equipoJugadorMap.obtenerMapa().entrySet()) {
+            List<Jugador> jugadores = entry.getValue();
+            for (Jugador jugador : jugadores) {
+                if (jugador.getNombre().equals(nombreJugador)) {
+                    jugador.setTarjetasAmarillas(jugador.getTarjetasAmarillas() + amarillas);
+                    jugador.setTarjetasRojas(jugador.getTarjetasRojas() + rojas);
+                    break;
+                }
+            }
+        }
+
+        guardarJugadoresEnArchivo(equipoJugadorMap); // Guardar los jugadores actualizados
+    }
+
+    // Método para guardar jugadores en archivo utilizando EquipoJugadorMap
+    public static void guardarJugadoresEnArchivo(EquipoJugadorMap equipoJugadorMap) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("tabla_jugadores.txt"))) {
+            for (Map.Entry<String, List<Jugador>> entry : equipoJugadorMap.obtenerMapa().entrySet()) {
+                List<Jugador> jugadores = entry.getValue();
+                for (Jugador jugador : jugadores) {
+                    writer.write(jugador.getNombre() + "," + jugador.getEdad() + "," + jugador.getCedula() + "," +
+                            jugador.getPosicion() + "," + jugador.getGoles() + "," + jugador.getTarjetasAmarillas() + "," +
+                            jugador.getTarjetasRojas() + "," + jugador.getMinutosJugados() + "," + jugador.getFechaContrato() + "," +
+                            entry.getKey()); // Incluir el equipo en el archivo
+                    writer.newLine();
+                }
+            }
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Error al guardar los jugadores: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     // Método para obtener la categoría del equipo basado en su nombre
     private String obtenerCategoriaEquipo(String nombreEquipo) {
         for (int i = 0; i < menuFrame.getModeloTablaOculta().getRowCount(); i++) {
@@ -355,17 +393,48 @@ public class Panel_Jugador extends JPanel implements ActionListener {
         List<String> nombresEquipos = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader("tabla_equipos.txt"))) {
             String line;
-        while ((line = reader.readLine()) != null) {
-            String[] data = line.split(",");
-            if (data.length > 0) {
-                nombresEquipos.add(data[0]); // Solo agregar el nombre del equipo
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data.length > 0) {
+                    nombresEquipos.add(data[0]); // Solo agregar el nombre del equipo
+                }
             }
+        } catch(IOException e) {
+            e.printStackTrace();
         }
-    } catch(IOException e) {
-        e.printStackTrace();
+        return nombresEquipos;
     }
-    return nombresEquipos;
+
+    public static EquipoJugadorMap cargarJugadoresDesdeArchivo() {
+        EquipoJugadorMap equipoJugadorMap = new EquipoJugadorMap();
+        Map<String, List<Jugador>> tempMap = new HashMap<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader("tabla_jugadores.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] datos = line.split(",");
+                if (datos.length == 10) { // Cambiamos esto para reflejar el formato adecuado
+                    Jugador jugador = new Jugador(datos[0], Integer.parseInt(datos[1]), datos[2], datos[3],
+                            Integer.parseInt(datos[4]), Integer.parseInt(datos[5]), Integer.parseInt(datos[6]),
+                            Integer.parseInt(datos[7]), datos[8]);
+                    String equipo = datos[9];
+                    if (!tempMap.containsKey(equipo)) {
+                        tempMap.put(equipo, new ArrayList<>());
+                    }
+                    tempMap.get(equipo).add(jugador);
+                }
+            }
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Error al cargar los jugadores: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        for (Map.Entry<String, List<Jugador>> entry : tempMap.entrySet()) {
+            equipoJugadorMap.agregarJugadores(entry.getKey(), entry.getValue());
+        }
+
+        return equipoJugadorMap;
     }
+
 
     // Método para actualizar el ComboBox con los nombres de los equipos
     public void actualizarComboEquipos() {
@@ -374,13 +443,13 @@ public class Panel_Jugador extends JPanel implements ActionListener {
             comboEquipos.setBounds(650, 80, 150, 20);
             add(comboEquipos);
         }
-       comboEquipos.removeAllItems();
+        comboEquipos.removeAllItems();
         // Cargar datos desde el archivo de nombres de equipos
         List<String> nombresEquipos = cargarNombresEquipos();
-            for (String nombre : nombresEquipos) {
-                comboEquipos.addItem(nombre.trim());
-            }
+        for (String nombre : nombresEquipos) {
+            comboEquipos.addItem(nombre.trim());
         }
+    }
     public void agregarEquipoEnComboBox(String nombre) {
         System.out.println("Agregando equipo al ComboBox: " + nombre);
 
@@ -399,7 +468,7 @@ public class Panel_Jugador extends JPanel implements ActionListener {
         txtTarjetasAmarillas.setText("");
         txtTarjetasRojas.setText("");
         txtMinutosJugados.setText("");
-        
+
         //cmb
         cmbPosicion.setSelectedIndex(0);
         cmbDia.setSelectedIndex(0);
@@ -411,14 +480,14 @@ public class Panel_Jugador extends JPanel implements ActionListener {
             for (int i = 0; i < modeloTabla1.getRowCount(); i++) {
                 writer.write(
                         modeloTabla1.getValueAt(i, 0) + "," +
-                        modeloTabla1.getValueAt(i, 1) + "," +
-                        modeloTabla1.getValueAt(i, 2) + "," +
-                        modeloTabla1.getValueAt(i, 3) + "," +
-                        modeloTabla1.getValueAt(i, 4) + "," +
-                        modeloTabla1.getValueAt(i, 5) + "," +
-                        modeloTabla1.getValueAt(i, 6) + "," +
-                        modeloTabla1.getValueAt(i, 7) + "," +
-                        modeloTabla1.getValueAt(i, 8)
+                                modeloTabla1.getValueAt(i, 1) + "," +
+                                modeloTabla1.getValueAt(i, 2) + "," +
+                                modeloTabla1.getValueAt(i, 3) + "," +
+                                modeloTabla1.getValueAt(i, 4) + "," +
+                                modeloTabla1.getValueAt(i, 5) + "," +
+                                modeloTabla1.getValueAt(i, 6) + "," +
+                                modeloTabla1.getValueAt(i, 7) + "," +
+                                modeloTabla1.getValueAt(i, 8)
                 );
                 writer.newLine();
             }
@@ -430,17 +499,25 @@ public class Panel_Jugador extends JPanel implements ActionListener {
     }
 
     private void cargarDatosDesdeArchivo() {
+        // Limpiar la tabla antes de cargar los datos
+        modeloTabla1.setRowCount(0);
+
         try (BufferedReader reader = new BufferedReader(new FileReader("tabla_jugadores.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
-                modeloTabla1.addRow(data);
+                if (data.length == 9) { // Asegúrate de que el archivo tenga 9 columnas
+                    modeloTabla1.addRow(data);
+                } else {
+                    System.out.println("Formato incorrecto en la línea: " + line);
+                }
             }
+            modeloTabla1.fireTableDataChanged(); // Asegurar actualización visual
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, "Error al cargar los datos: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error al cargar los datos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
 
     public void actualizarContenido() {
         // Lógica para actualizar la tabla o el contenido

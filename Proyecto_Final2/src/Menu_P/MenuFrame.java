@@ -18,7 +18,7 @@ public class MenuFrame extends JFrame implements ActionListener {
     private JMenu acerca, archivo, editar, logo;
     private JMenuItem info_p, participantes, salir, p_principal;
     private JMenuItem nuevo_op1, nuevo_op2, nuevo_op3, nuevo_op4,nuevo_op5;
-    private JMenuItem consult_op1, consult_op2, consult_op3, consult_op4, consult_op5;
+    private JMenuItem consult_op1, consult_op2, consult_op3, consult_op4,consult_op5;
     private JLabel m_general,labelPrincipal;
 
     private Panel_Jugador formularioPanel;
@@ -35,7 +35,7 @@ public class MenuFrame extends JFrame implements ActionListener {
     private Map<String, Integer> contadoresPorEquipo; // Mapa para los contadores de cada equipo
 
     public MenuFrame() {
-        
+
         contadoresPorEquipo = new HashMap<>();
         setTitle("Programa de Campeonato de Fútbol");
         setLayout(new BorderLayout());
@@ -97,7 +97,7 @@ public class MenuFrame extends JFrame implements ActionListener {
         configurarMenu();
         // Guardar datos al cerrar
         addWindowListener(new WindowAdapter() {
-            
+
             public void windowClosing(WindowEvent e) {
                 guardarDatosEnArchivo();
             }
@@ -145,7 +145,6 @@ public class MenuFrame extends JFrame implements ActionListener {
         consult_op3 = new JMenuItem("Árbitros");
         consult_op3.addActionListener(this);
         consult_op4 = new JMenuItem("Dirigentes");
-        consult_op4.addActionListener(this);
         consult_op5 = new JMenuItem("Partidos");
         consult_op5.addActionListener(this);
 
@@ -184,6 +183,10 @@ public class MenuFrame extends JFrame implements ActionListener {
         return contador;
     }
 
+    public void agregarFilaTablaOculta(Object[] data) {
+        modeloTablaOculta.addRow(data);
+        guardarDatosEnArchivo(); // Guardar los datos cada vez que se agregue una fila nueva
+    }
 
     public void guardarDatosEnArchivo() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("tabla_equipos.txt"))) {
@@ -264,28 +267,21 @@ public class MenuFrame extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == nuevo_op1) {
             mostrarPanel(formularioPanel);
-            this.setTitle("Programa de Campeonato de Fútbol - Archivo - Nuevo - Jugador ");
         } else if (e.getSource() == nuevo_op2) {
             mostrarPanel(formularioPanel2);
-            this.setTitle("Programa de Campeonato de Fútbol - Archivo - Nuevo - Equipo ");
         } else if (e.getSource() == nuevo_op3) {
             mostrarPanel(formularioPanel3);
-            this.setTitle("Programa de Campeonato de Fútbol - Archivo - Nuevo - Arbitro ");
         } else if (e.getSource() == nuevo_op4) {
             mostrarPanel(formularioPanel4);
-            this.setTitle("Programa de Campeonato de Fútbol - Archivo - Nuevo - Dirigente ");
         }else if (e.getSource() == nuevo_op5) {
             mostrarPanel(formularioPanel5);
-            this.setTitle("Programa de Campeonato de Fútbol - Archivo - Nuevo - Partidos ");
         } else if (e.getSource() == salir) {
             System.exit(0);
-
         } else if (e.getSource() == p_principal) {
             getContentPane().removeAll();
             add(m_general, BorderLayout.CENTER);
             revalidate();
             repaint();
-            this.labelPrincipal.setVisible(true);
         } else if (e.getSource() == info_p) {
             JOptionPane.showMessageDialog(this,
                     "Programa de campeonato creado por el Grupo C\nMateria: Programación Orientada a Objetos.\nMateria impartida por el Ing. Crespo Mendoza Roberto.",
@@ -297,26 +293,21 @@ public class MenuFrame extends JFrame implements ActionListener {
         } else if (e.getSource() == consult_op1) {
             ConsultaPanel1 consultaJugadores = new ConsultaPanel1(formularioPanel.getModeloTabla(), "DATOS DE LOS JUGADORES");
             mostrarPanel(consultaJugadores);
-            this.setTitle("Programa de Campeonato de Fútbol - Editar - Consulta - Jugadores ");
         } else if (e.getSource() == consult_op2) {
             ConsultaPanel2 consultaEquipos = new ConsultaPanel2(formularioPanel2.getModeloTabla(), "DATOS DE LOS EQUIPOS");
             mostrarPanel(consultaEquipos);
-            this.setTitle("Programa de Campeonato de Fútbol - Editar - Consulta - Equipos ");
         } else if (e.getSource() == consult_op3) {
             ConsultaPanel3 consultaArbitros = new ConsultaPanel3(formularioPanel3.getModeloTabla(), "DATOS DE LOS ÁRBITROS");
             mostrarPanel(consultaArbitros);
-            this.setTitle("Programa de Campeonato de Fútbol - Editar - Consulta - Árbitros ");
         } else if (e.getSource() == consult_op4) {
             ConsultaPanel4 consultaDirigentes = new ConsultaPanel4(formularioPanel4.getModeloTabla(), "DATOS DE LOS DIRIGENTES");
             mostrarPanel(consultaDirigentes);
-            this.setTitle("Programa de Campeonato de Fútbol - Editar - Consulta - Dirigentes ");
-        } else if (e.getSource() == consult_op5) {
+        }else if (e.getSource() == consult_op5) {
             ConsultaPanel5 consultaPartidos = new ConsultaPanel5(formularioPanel5.getModeloTabla(), "DATOS DE LOS PARTIDOS");
             mostrarPanel(consultaPartidos);
             this.setTitle("Programa de Campeonato de Fútbol - Editar - Consulta - Partidos ");
         }
     }
-
 
     private void mostrarPanel(JPanel panel) {
         getContentPane().removeAll();
@@ -324,4 +315,5 @@ public class MenuFrame extends JFrame implements ActionListener {
         revalidate();
         repaint();
     }
+
 }
