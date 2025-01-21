@@ -1,0 +1,9 @@
+Barcelona,Emelec,3 - 5,2,2
+Barcelona,Emelec,4 - 5,0,0
+Madrid,Manchester,5 - 5,0,0
+Madrid,Liverpool,3 - 3,0,0
+Manchester,Madrid,2 - 2,0,0
+Barcelona,Emelec,2 - 2,0,0
+Barcelona,Liverpool,2 - 2,0,0
+Barcelona,Liverpool,2 - 2,0,0
+Barcelona,Manchester,22 - 2,0,0

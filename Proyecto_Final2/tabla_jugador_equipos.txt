@@ -1,0 +1,10 @@
+Leones,Primera,Pablo Perez Muñoz,1
+Barcelona,Primera,Pablo Perez Muñoz,1
+Emelec,Primera,Pablo Perez Muñoz,1
+Manchester,Primera,Miguel Vanegas Vargas,1
+Leones,Primera,Mario Pinto,2
+Barcelona,Primera,Pedro Pedrin,2
+Jararenses,Primera,Pablo Perez Muñoz,1
+Liverpool,Segunda,Enner Valencia,1
+Liverpool,Segunda,Tomas Maradona,2
+Madrid,Segunda,Miguel Crespo,1

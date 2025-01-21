@@ -1,0 +1,16 @@
+Pedro Gavilanes,Vicepresidente,34,1351650187,$567.89,12 de Mayo del 2016	
+Andres Zambrano,Director Técnico (Entrenador),65,1231112111,$1215.34,21 Junio 2026	
+Roberto Cedeño,Vocal,76,123453211,$3456.68,8 de Septiembre del 2002
+Juan Fernando Cazares ,Presidente,45,23422223,$222.33,18 de Agosto del 2017
+Miguel Loyola,Presidente,22,0706094810,$1000,00
+Daddy Yankee,Presidente,42,0706558965,$1000000,00
+Lalo Peru,Presidente,32,21231323111,$231223,00
+Dragon Ball,Director Técnico (Entrenador),23,2132133213,$2132123,00
+Miguel Eduardo,Presidente,22,0706094810,$10000,00
+Hola,Presidente,22,3213,$3232,00
+Cristian Gavilanes,Director Técnico (Entrenador),22,213221,$323223,00
+Minecradt,Presidente,22,2312,$21312222,00
+Pepe Tonio,Presidente,21,21332132,$3223,00
+Eduardo Loyola,Presidente,22,5455644,$54545,00
+Apolinario,Presidente,22,1232132,$3232,00,1 de Enero del 1999
+Jose Antonio,Presidente,22,123231,$22,00,1 de Enero del 2000
